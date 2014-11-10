@@ -52,19 +52,16 @@ combinedTrainingMatrix <- cbind(combinedTrainingMatrix, NoRTPPkts = periodic.tra
 # Now perform the main linear regression tests.
 
 ## Regression For DispFrames.
-lm.fit.DispFrames = lm(DispFrames~.-NoAudioPlayed, combinedTrainingMatrix)
-lm.fit.DispFrames <- update(lm.fit.DispFrames, ~.-NoRTPPkts)
+lm.fit.DispFrames = lm(DispFrames~.-NoAudioPlayed -NoRTPPkts, combinedTrainingMatrix)
 summary(lm.fit.DispFrames)
 
 ## Regression For NoAudioPlayed
-lm.fit.NoAudioPlayed = lm(NoAudioPlayed~.-DispFrames, combinedTrainingMatrix)
-lm.fit.NoAudioPlayed <- update(lm.fit.NoAudioPlayed, ~.-NoRTPPkts)
+lm.fit.NoAudioPlayed = lm(NoAudioPlayed~.-DispFrames -NoRTPPkts, combinedTrainingMatrix)
 summary(lm.fit.NoAudioPlayed)
 
 
 ## Regression for NoRTPPkts
-lm.fit.NoRTPPkts = lm(NoRTPPkts~.-NoAudioPlayed, combinedTrainingMatrix)
-lm.fit.NoRTPPkts <- update(lm.fit.NoRTPPkts, ~.-DispFrames)
+lm.fit.NoRTPPkts = lm(NoRTPPkts~.-NoAudioPlayed -DispFrames, combinedTrainingMatrix)
 summary(lm.fit.NoRTPPkts)
 
 
