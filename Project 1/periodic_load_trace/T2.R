@@ -47,16 +47,19 @@ combined.training.matrix <- cbind(combined.training.matrix, NoRTPPkts = periodic
 # Now perform the main linear regression tests.
 
 ## Regression For DispFrames.
-lm.fit.DispFrames <- lm(DispFrames~.-NoAudioPlayed -NoRTPPkts, combined.training.matrix)
+lm.fit.DispFrames <- lm(DispFrames~.-NoAudioPlayed, combined.training.matrix)
+lm.fit.DispFrames <- update(lm.fit.DispFrames, ~. -NoRTPPkts)
 summary(lm.fit.DispFrames)
 
 ## Regression For NoAudioPlayed
-lm.fit.NoAudioPlayed = <-  lm(NoAudioPlayed~.-DispFrames -NoRTPPkts, combined.training.matrix)
+lm.fit.NoAudioPlayed <-  lm(NoAudioPlayed~.-DispFrames, combined.training.matrix)
+lm.fit.NoAudioPlayed <- update(lm.fit.NoAudioPlayed, ~. -NoRTPPkts)
 summary(lm.fit.NoAudioPlayed)
 
 
 ## Regression for NoRTPPkts
-lm.fit.NoRTPPkts <- lm(NoRTPPkts~.-NoAudioPlayed -DispFrames, combined.training.matrix)
+lm.fit.NoRTPPkts <- lm(NoRTPPkts~.-NoAudioPlayed , combined.training.matrix)
+lm.fit.NoRTPPkts <- update(lm.fit.NoRTPPkts, ~. -DispFrames)
 summary(lm.fit.NoRTPPkts)
 
 # Predict the values:
@@ -135,22 +138,22 @@ dev.off()
 ########### Normalized Mean Absolute Error.
 
 # NMAE DispFrames.
-diff.DispFrames <- combined.DispFrames[, "actual"] - combined.DispFrames[, "observed"]
+diff.DispFrames <- combined.DispFrames[, "actual"] - combined.DispFrames[, "predicted"]
 diff.DispFrames <- abs(diff.DispFrames)
-error.DispFrames <- mean(diff.DispFrames)/mean(combined.DispFrames[, "observed"])
+error.DispFrames <- mean(diff.DispFrames)/mean(combined.DispFrames[, "actual"])
 # execution-time.
 exe.DispFrames.time <- system.time(lm(DispFrames~.-NoAudioPlayed -NoRTPPkts, combined.training.matrix))
 
 # NMAE NoAudioPlayed
-diff.NoAudioPlayed <- combined.NoAudioPlayed[, "actual"] - combined.NoAudioPlayed[, "observed"]
+diff.NoAudioPlayed <- combined.NoAudioPlayed[, "actual"] - combined.NoAudioPlayed[, "predicted"]
 diff.NoAudioPlayed <- abs(diff.NoAudioPlayed)
-error.NoAudioPlayed <- mean(diff.NoAudioPlayed)/mean(combined.NoAudioPlayed[, "observed"])
+error.NoAudioPlayed <- mean(diff.NoAudioPlayed)/mean(combined.NoAudioPlayed[, "actual"])
 #execution-time.
 exe.NoAudioPlayed.time <- system.time(lm(NoAudioPlayed~.-DispFrames -NoRTPPkts, combined.training.matrix))
 
 # NMAE NoRTPPkts
-diff.NoRTPPkts <- combined.NoRTPPkts[, "actual"] - combined.NoRTPPkts[, "observed"]
+diff.NoRTPPkts <- combined.NoRTPPkts[, "actual"] - combined.NoRTPPkts[, "predicted"]
 diff.NoRTPPkts <- abs(diff.NoRTPPkts)
-error.NoRTPPkts <- mean(diff.NoRTPPkts)/mean(combined.NoRTPPkts[, "observed"])
+error.NoRTPPkts <- mean(diff.NoRTPPkts)/mean(combined.NoRTPPkts[, "actual"])
 # execution-time
 exe.NoRTPPkts.time <- system.time(lm(NoRTPPkts~.-NoAudioPlayed -DispFrames, combined.training.matrix))
