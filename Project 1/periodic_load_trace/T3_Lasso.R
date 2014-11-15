@@ -25,50 +25,69 @@ periodic.training.y <- periodic.y[train.index,]
 periodic.test.x <- periodic.x[-train.index,]
 periodic.test.y <- periodic.y[-train.index,]
 
+################## Lasso Regression Method.
 
-################## Regression Method = Least Square Regression Method.
-
-
-# Create a copy holder object.
-combined.training.matrix <- periodic.training.x
-
-# Append the response data columns in the predictor data set.
-
-## Add DispFrames. 
-combined.training.matrix <- cbind(combined.training.matrix, DispFrames = periodic.training.y$DispFrames)
-
-## Add NoAudioPlayed
-combined.training.matrix <- cbind(combined.training.matrix, NoAudioPlayed = periodic.training.y$NoAudioPlayed)
-
-## Add NoRTPPkts
-combined.training.matrix <- cbind(combined.training.matrix, NoRTPPkts = periodic.training.y$NoRTPPkts)
+library(glmnet)
+# Create a matrix from the list.
+periodic.training.x.matrix <- model.matrix(~.,periodic.training.x )[,-1]
+periodic.test.x.matrix <-  model.matrix(~.,periodic.test.x )[,-1]
 
 
-# Now perform the main linear regression tests.
+# To get best lambda, set up the cross validations in the set.
 
-## Regression For DispFrames.
-lm.fit.DispFrames <- lm(DispFrames~.-NoAudioPlayed, combined.training.matrix)
-lm.fit.DispFrames <- update(lm.fit.DispFrames, ~. -NoRTPPkts)
-summary(lm.fit.DispFrames)
+# =========================================================== DispFrames.
 
-## Regression For NoAudioPlayed
-lm.fit.NoAudioPlayed <-  lm(NoAudioPlayed~.-DispFrames, combined.training.matrix)
-lm.fit.NoAudioPlayed <- update(lm.fit.NoAudioPlayed, ~. -NoRTPPkts)
-summary(lm.fit.NoAudioPlayed)
+cross.validations.DispFrames = cv.glmnet(periodic.training.x.matrix, periodic.training.y[,'DispFrames'])
+#plot(cross.validations.DispFrames)
 
+# Get the best lambda 
+lambda.DispFrames <- cross.validations.DispFrames$lambda.min
 
-## Regression for NoRTPPkts
-lm.fit.NoRTPPkts <- lm(NoRTPPkts~.-NoAudioPlayed , combined.training.matrix)
-lm.fit.NoRTPPkts <- update(lm.fit.NoRTPPkts, ~. -DispFrames)
-summary(lm.fit.NoRTPPkts)
+# Calculate the coefficients through lasso.
+lasso.fit.Dispframes <- glmnet(periodic.training.x.matrix, periodic.training.y[,'DispFrames'], alpha=1)
+# fit.Dispframes
+# plot(fit.Dispframes)
 
-# Predict the values:
-predicted.DispFrames <- predict(lm.fit.DispFrames,periodic.test.x)
-predicted.NoAudioPlayed <- predict(lm.fit.NoAudioPlayed, periodic.test.x)
-predicted.NoRTPPkts <- predict(lm.fit.NoRTPPkts, periodic.test.x)
+# predict the value.
+predicted.DispFrames <- predict(lasso.fit.Dispframes,periodic.test.x.matrix,s=lambda.DispFrames)
 
 
-################ Plotting Time Series Graph
+# ============================================================ NoAudioPlayed.
+
+
+cross.validations.NoAudioPlayed = cv.glmnet(periodic.training.x.matrix, periodic.training.y[,'NoAudioPlayed'])
+#plot(cross.validations.NoAudioPlayed)
+
+# Get the best lambda 
+lambda.NoAudioPlayed <- cross.validations.NoAudioPlayed$lambda.min
+
+# Calculate the coefficients through lasso.
+lasso.fit.NoAudioPlayed <- glmnet(periodic.training.x.matrix, periodic.training.y[,'NoAudioPlayed'], alpha=1)
+# plot(lasso.fit.NoAudioPlayed)
+
+# Predict the value.
+predicted.NoAudioPlayed <- predict(lasso.fit.NoAudioPlayed, periodic.test.x.matrix, s=lambda.NoAudioPlayed)
+
+
+# ============================================================= NoRTPPkts.
+
+
+cross.validations.NoRTPPkts = cv.glmnet(periodic.training.x.matrix, periodic.training.y[,'NoRTPPkts'])
+#plot(cross.validations.NoRTPPkts)
+
+# Get the best lambda 
+lambda.NoRTPPkts <- cross.validations.NoRTPPkts$lambda.min
+
+# Calculate the coefficients through lasso.
+lasso.fit.NoRTPPkts <- glmnet(periodic.training.x.matrix, periodic.training.y[,'NoRTPPkts'], alpha=1)
+# plot(lasso.fit.NoRTPPkts)
+
+# Predict the value.
+predicted.NoRTPPkts <- predict(lasso.fit.NoRTPPkts, periodic.test.x.matrix, s=lambda.NoRTPPkts)
+
+
+
+# =============================================================       Plotting Time Series Graph
 
 # Now Create lot for the time series.
 
@@ -105,9 +124,9 @@ dev.off()
 ############# Plotting Against Each Other.
 
 # Creating combined graphs.
-combined.DispFrames <- cbind(predicted = predicted.DispFrames, actual = periodic.test.y[,'DispFrames'])
-combined.NoAudioPlayed <- cbind(predicted = predicted.NoAudioPlayed, actual = periodic.test.y[,'NoAudioPlayed'])
-combined.NoRTPPkts <- cbind(predicted = predicted.NoRTPPkts, actual = periodic.test.y[,'NoRTPPkts'])
+combined.DispFrames <- cbind(predicted = predicted.DispFrames[,"1"], actual = periodic.test.y[,'DispFrames'])
+combined.NoAudioPlayed <- cbind(predicted = predicted.NoAudioPlayed[,"1"], actual = periodic.test.y[,'NoAudioPlayed'])
+combined.NoRTPPkts <- cbind(predicted = predicted.NoRTPPkts[,"1"], actual = periodic.test.y[,'NoRTPPkts'])
 
 #DispFrames.
 png(file="dispframes_comparison.png",width=500, height=400)
