@@ -1,8 +1,18 @@
+args<-commandArgs(TRUE)
+x.path = "X.csv"
+y.path = "Y.csv"
+
+if (length(args) >= 2) {
+  x.path = args[1]
+  y.path = args[2]
+}
 
 # Read Data into X
-periodic.x <- read.csv("X.csv")
+stopifnot(file.exists(x.path)) # check if x data file exists
+x <- read.csv(x.path)
 # Read Data into Y.
-periodic.y <- read.csv("Y.csv")
+stopifnot(file.exists(y.path)) # check if y data file exists
+y <- read.csv(y.path)
 
 
 # Instead of choosing a sequential set, create a random set. (Replace = False.)
