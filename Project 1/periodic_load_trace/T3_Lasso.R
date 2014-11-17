@@ -161,18 +161,21 @@ diff.DispFrames <- combined.DispFrames[, "actual"] - combined.DispFrames[, "pred
 diff.DispFrames <- abs(diff.DispFrames)
 error.DispFrames <- mean(diff.DispFrames)/mean(combined.DispFrames[, "actual"])
 # execution-time.
-exe.DispFrames.time <- system.time(lm(DispFrames~.-NoAudioPlayed -NoRTPPkts, combined.training.matrix))
+exe.DispFrames.time <- system.time(glmnet(periodic.training.x.matrix, periodic.training.y[,'DispFrames'], alpha=1))
 
 # NMAE NoAudioPlayed
 diff.NoAudioPlayed <- combined.NoAudioPlayed[, "actual"] - combined.NoAudioPlayed[, "predicted"]
 diff.NoAudioPlayed <- abs(diff.NoAudioPlayed)
 error.NoAudioPlayed <- mean(diff.NoAudioPlayed)/mean(combined.NoAudioPlayed[, "actual"])
 #execution-time.
-exe.NoAudioPlayed.time <- system.time(lm(NoAudioPlayed~.-DispFrames -NoRTPPkts, combined.training.matrix))
+exe.NoAudioPlayed.time <- system.time(glmnet(periodic.training.x.matrix, periodic.training.y[,'NoAudioPlayed'], alpha=1))
 
 # NMAE NoRTPPkts
 diff.NoRTPPkts <- combined.NoRTPPkts[, "actual"] - combined.NoRTPPkts[, "predicted"]
 diff.NoRTPPkts <- abs(diff.NoRTPPkts)
 error.NoRTPPkts <- mean(diff.NoRTPPkts)/mean(combined.NoRTPPkts[, "actual"])
 # execution-time
-exe.NoRTPPkts.time <- system.time(lm(NoRTPPkts~.-NoAudioPlayed -DispFrames, combined.training.matrix))
+exe.NoRTPPkts.time <- system.time(glmnet(periodic.training.x.matrix, periodic.training.y[,'NoRTPPkts'], alpha=1))
+
+
+# ===============================
