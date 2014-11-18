@@ -103,7 +103,7 @@ predicted.NoRTPPkts <- predict(lasso.fit.NoRTPPkts, periodic.test.x.matrix, s=la
 
 # DispFrames time series plot.,
 png(file="dispframes_timeseries.png",width=500, height=400)
-plot(predicted.DispFrames, col="blue", xlab="Number of Samples", ylab="Video frame rate (frames/sec)")
+plot(predicted.DispFrames, col="blue", xlab="Number of Samples", ylab="Video frame rate (frames/sec)",main="Video Frame Rate Predition Using Lasso Regresssion")
 points(periodic.test.y[,'DispFrames'],col="red",pch = 4)
 legend("topright",
        c("Predicted Frame Rate","Actual Frame Rate"), bty="o", col=c("blue", "red"), 
@@ -112,7 +112,7 @@ dev.off()
 
 # No Audio Played Time Series Plot.
 png(file="audioplayed_timeseries.png",width=500, height=400)
-plot(predicted.NoAudioPlayed, col="blue", xlab="Number of Samples", ylab="Audio buffer rate (buffer/sec)")
+plot(predicted.NoAudioPlayed, col="blue", xlab="Number of Samples", ylab="Audio buffer rate (buffer/sec)",main="Audio Buffer Rate Predition Using Lasso Regresssion")
 points(periodic.test.y[,'NoAudioPlayed'],col="red",pch = 4)
 legend("topright",
        c("Predicted Buffer Rate","Actual Buffer Rate"), bty="o", col=c("blue", "red"), 
@@ -121,7 +121,7 @@ dev.off()
 
 # NoRTPPkts Time series Plot.
 png(file="rtppacket_timeseries.png",width=500, height=400)
-plot(predicted.NoRTPPkts, col="blue", xlab="Number of Samples", ylab="RTP packet rate (packets/sec)")
+plot(predicted.NoRTPPkts, col="blue", xlab="Number of Samples", ylab="RTP packet rate (packets/sec)", main="RTP Packet Rate Predition Using Lasso Regresssion")
 points(periodic.test.y[,'NoRTPPkts'], col="red", pch=4)
 legend("topright",
        c("Predicted RTP Rate","Actual RTP Rate"), bty="o", col=c("blue", "red"), 
@@ -140,7 +140,7 @@ combined.NoRTPPkts <- cbind(predicted = predicted.NoRTPPkts[,"1"], actual = peri
 
 #DispFrames.
 png(file="dispframes_comparison.png",width=500, height=400)
-plot(combined.DispFrames[,'actual'],combined.DispFrames[,'predicted'], col=c('blue','red'), xlab="Actual Video frame rate (frames/sec)", ylab="Predicted Video frame rate (frames/sec)", pch=c(1,4))
+plot(combined.DispFrames[,'actual'],combined.DispFrames[,'predicted'], col=c('blue','red'), xlab="Actual Video frame rate (frames/sec)", ylab="Predicted Video frame rate (frames/sec)", pch=c(1,4), main="Video Frame Rate Comparison Using Lasso Regresssion")
 legend("topleft",
        c("Actual Frame Rate","Predicted Frame Rate"), bty="o", col=c("blue", "red"), 
        horiz=FALSE, cex=1, pch=c(1,4))
@@ -149,7 +149,7 @@ dev.off()
 
 #NoAudioPlayed
 png(file="audioplayed_comparison.png",width=500, height=400)
-plot(combined.NoAudioPlayed[,'actual'],combined.NoAudioPlayed[,'predicted'], col=c('blue','red'), xlab="Actual Audio buffer rate (buffer/sec)", ylab="Predicted Audio buffer rate (buffer/sec)", pch=c(1,4))
+plot(combined.NoAudioPlayed[,'actual'],combined.NoAudioPlayed[,'predicted'], col=c('blue','red'), xlab="Actual Audio buffer rate (buffer/sec)", ylab="Predicted Audio buffer rate (buffer/sec)", pch=c(1,4), main="Audio Buffer Rate Comparison Using Lasso Regresssion")
 legend("topright",
        c("Actual Audio Buffer Rate","Predicted Audio Buffer Rate"), bty="o", col=c("blue", "red"), 
        horiz=FALSE, cex=1, pch=c(1,4))
@@ -157,7 +157,7 @@ dev.off()
 
 #NoRTPPkts
 png(file="rtppacket_comparison.png",width=500, height=400)
-plot(combined.NoRTPPkts[,'actual'],combined.NoRTPPkts[,'predicted'], col=c('blue','red'), xlab="Actual RTP packet rate (packet/sec)", ylab="Predicted RTP packet rate (packet/sec)", pch=c(1,4))
+plot(combined.NoRTPPkts[,'actual'],combined.NoRTPPkts[,'predicted'], col=c('blue','red'), xlab="Actual RTP packet rate (packet/sec)", ylab="Predicted RTP packet rate (packet/sec)", pch=c(1,4), main="RTP Packet Rate Comparison Using Lasso Regresssion")
 legend("bottomright",
        c("Actual RTP packet rate","Predicted RTP packet rate"), bty="o", col=c("blue", "red"), 
        horiz=FALSE, cex=1, pch=c(1,4))
