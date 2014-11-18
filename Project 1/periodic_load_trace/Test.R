@@ -50,8 +50,9 @@ combined.training.matrix <- cbind(combined.training.matrix, NoRTPPkts = periodic
 lm.fit.DispFrames <- lm(DispFrames~.-NoAudioPlayed -NoRTPPkts, combined.training.matrix)
 summary(lm.fit.DispFrames)
 
+
 ## Regression For NoAudioPlayed
-lm.fit.NoAudioPlayed = <-  lm(NoAudioPlayed~.-DispFrames -NoRTPPkts, combined.training.matrix)
+lm.fit.NoAudioPlayed <-  lm(NoAudioPlayed~.-DispFrames -NoRTPPkts, combined.training.matrix)
 summary(lm.fit.NoAudioPlayed)
 
 
@@ -60,7 +61,7 @@ lm.fit.NoRTPPkts <- lm(NoRTPPkts~.-NoAudioPlayed -DispFrames, combined.training.
 summary(lm.fit.NoRTPPkts)
 
 # Predict the values:
-predicted.DispFrames <- predict(lm.fit.DispFrames,periodic.test.x)
+predicted.DispFrames <- predict(lm.fit.DispFrames, periodic.test.x)
 predicted.NoAudioPlayed <- predict(lm.fit.NoAudioPlayed, periodic.test.x)
 predicted.NoRTPPkts <- predict(lm.fit.NoRTPPkts, periodic.test.x)
 
