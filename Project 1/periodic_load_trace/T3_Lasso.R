@@ -9,10 +9,10 @@ if (length(args) >= 2) {
 
 # Read Data into X
 stopifnot(file.exists(x.path)) # check if x data file exists
-x <- read.csv(x.path)
+periodic.x <- read.csv(x.path)
 # Read Data into Y.
 stopifnot(file.exists(y.path)) # check if y data file exists
-y <- read.csv(y.path)
+periodic.y <- read.csv(y.path)
 
 
 # Instead of choosing a sequential set, create a random set. (Replace = False.)
