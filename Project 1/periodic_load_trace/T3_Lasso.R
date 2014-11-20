@@ -69,7 +69,7 @@ cross.validations.NoAudioPlayed = cv.glmnet(periodic.training.x.matrix, periodic
 #plot(cross.validations.NoAudioPlayed)
 
 # Get the best lambda 
-lambda.NoAudioPlayed <- cross.validations.NoAudioPlayed$lambda.min
+lambda.NoAudioPlayed <- cross.validations.DispFrames$lambda.min
 
 # Calculate the coefficients through lasso.
 lasso.fit.NoAudioPlayed <- glmnet(periodic.training.x.matrix, periodic.training.y[,'NoAudioPlayed'], alpha=1)
@@ -189,3 +189,22 @@ exe.NoRTPPkts.time <- system.time(glmnet(periodic.training.x.matrix, periodic.tr
 
 
 # ===============================
+
+### Leader Board Manipulation ()
+
+leaderboard.x <- read.csv("project1_X.csv")
+leaderboard.x <-  model.matrix(~.,leaderboard.x )[,-1]
+leaderboard.predicted.DispFrames <- predict(lasso.fit.Dispframes,leaderboard.x,s=lambda.DispFrames)
+leaderboard.predicted.NoAudioPlayed <- predict(lasso.fit.NoAudioPlayed, leaderboard.x,s=lambda.NoAudioPlayed)
+leaderboard.predicted.NoRTPPkts <- predict(lasso.fit.NoRTPPkts, leaderboard.x,s=lambda.NoRTPPkts)
+
+leaderboard.frame = data.frame(DispFrames=leaderboard.predicted.DispFrames, 
+                               NoAudioPlayed=leaderboard.predicted.NoAudioPlayed, NoRTPPkts=leaderboard.predicted.NoRTPPkts)
+
+write.csv(leaderboard.frame, "leaderboard_results.csv")
+
+
+#=================================
+
+
+
