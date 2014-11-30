@@ -120,6 +120,77 @@ NoRTPPkts.glm.fit = glm(NoRTPPkts.classify ~ all_..idle + X..memused + X..swpuse
 #summary(NoRTPPkts.glm.fit)
 
 
+## Now make predictions using the test set.
+
+
+## DispFrames
+DispFrames.glm.predict <- predict(DispFrames.glm.fit, 
+                              type="response",
+                              newdata=flashcrowd.test.combined)
+
+DispFrames.glm.predict <- as.data.frame(DispFrames.glm.predict)
+
+# Cleaning and converting the data
+
+# Predictor Vector.
+DispFrames.predicted.vector <- DispFrames.glm.predict$DispFrames.glm.predict
+DispFrames.predicted.vector <- replace(DispFrames.predicted.vector, DispFrames.predicted.vector >= 0.5 , "high")
+DispFrames.predicted.vector <- replace(DispFrames.predicted.vector, DispFrames.predicted.vector <  0.5 , "low")
+
+# Actual Vector.
+DispFrames.actual.vector <- flashcrowd.test.combined$DispFrames.classify
+DispFrames.actual.vector <- replace(DispFrames.actual.vector, DispFrames.actual.vector == 1 , "high")
+DispFrames.actual.vector <- replace(DispFrames.actual.vector, DispFrames.actual.vector == 0 , "low")
+
+
+# Creating the confusion matrix.
+table(DispFrames.predicted.vector,DispFrames.actual.vector)
+
+
+## NoAudioPlayed
+NoAudioPlayed.glm.predict <- predict(NoAudioPlayed.glm.fit, 
+                                  type="response",
+                                  newdata=flashcrowd.test.combined)
+
+NoAudioPlayed.glm.predict <- as.data.frame(NoAudioPlayed.glm.predict)
+
+# Cleaning and converting the data.
+
+# Predictor Vector.
+NoAudioPlayed.predicted.vector <- NoAudioPlayed.glm.predict$NoAudioPlayed.glm.predict
+NoAudioPlayed.predicted.vector <- replace(NoAudioPlayed.predicted.vector, NoAudioPlayed.predicted.vector >= 0.5 , "high")
+NoAudioPlayed.predicted.vector <- replace(NoAudioPlayed.predicted.vector, NoAudioPlayed.predicted.vector <  0.5 , "low")
+
+# Actual Vector.
+NoAudioPlayed.actual.vector <- flashcrowd.test.combined$NoAudioPlayed.classify
+NoAudioPlayed.actual.vector <- replace(NoAudioPlayed.actual.vector, NoAudioPlayed.actual.vector == 1 , "high")
+NoAudioPlayed.actual.vector <- replace(NoAudioPlayed.actual.vector, NoAudioPlayed.actual.vector == 0 , "low")
+
+# Creating the confusion matrix.
+table(NoAudioPlayed.predicted.vector,NoAudioPlayed.actual.vector)
+
+
+# NoRTPPkts
+NoRTPPkts.glm.predict <- predict(NoRTPPkts.glm.fit, 
+                                     type="response",
+                                     newdata=flashcrowd.test.combined)
+
+NoRTPPkts.glm.predict <- as.data.frame(NoRTPPkts.glm.predict)
+
+# Cleaning and converting the data.
+
+# Predictor Vector.
+NoRTPPkts.predicted.vector <- NoRTPPkts.glm.predict$NoRTPPkts.glm.predict
+NoRTPPkts.predicted.vector <- replace(NoRTPPkts.predicted.vector, NoRTPPkts.predicted.vector >= 0.5 , "high")
+NoRTPPkts.predicted.vector <- replace(NoRTPPkts.predicted.vector, NoRTPPkts.predicted.vector <  0.5 , "low")
+
+# Actual Vector.
+NoRTPPkts.actual.vector <- flashcrowd.test.combined$NoRTPPkts.classify
+NoRTPPkts.actual.vector <- replace(NoRTPPkts.actual.vector, NoRTPPkts.actual.vector == 1 , "high")
+NoRTPPkts.actual.vector <- replace(NoRTPPkts.actual.vector, NoRTPPkts.actual.vector == 0 , "low")
+
+# Creating the confusion matrix.
+table(NoRTPPkts.predicted.vector,NoRTPPkts.actual.vector)
 
 
 
