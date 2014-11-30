@@ -54,89 +54,73 @@ flashcrowd.y.NoRTPPkts.classify <- classify(flashcrowd.y[["NoRTPPkts"]],flashcro
 flashcrowd.y.classification.list <- list("DispFrames.classify"=flashcrowd.y.DispFrames.classify, "NoAudioPlayed.classify"=flashcrowd.y.NoAudioPlayed.classify, "NoRTPPkts.classify"=flashcrowd.y.NoRTPPkts.classify)
 
 
-##### ================  Bar Plotting.
 
-## Calculate the occurences of classification categories.
+#### ==================== LOGISTIC REGRESSION.
 
-# DispFrames
-DispFrames.high.count <- sum(flashcrowd.y.DispFrames.classify == 'high')
-DispFrames.low.count <- sum(flashcrowd.y.DispFrames.classify == 'low')
+## STEP 1: Append the classification list to the flashcrowd matrix x.
 
-## barplot.
-#barplot(c(DispFrames.high.count,DispFrames.low.count), ylab="Frequency" , ylim=c(0,length(flashcrowd.y.DispFrames.classify)), col=c("darkblue","red"), names.arg =c("high","low"), main="DispFrames Classification")
+flashcrowd.combined <- cbind(flashcrowd.x,flashcrowd.y.classification.list)
 
 
-# NoAudioPlayed
-NoAudioPlayed.high.count <- sum(flashcrowd.y.NoAudioPlayed.classify == 'high')
-NoAudioPlayed.low.count <- sum(flashcrowd.y.NoAudioPlayed.classify == 'low')
+## STEP 2: Divide the set into the training set and the test set.
 
-## barplot
-#barplot(c(NoAudioPlayed.high.count,NoAudioPlayed.low.count), ylab="Frequency" , ylim=c(0,length(flashcrowd.y.NoAudioPlayed.classify)), col=c("darkblue","red"), names.arg =c("high","low"), main="NoAudioPlayed Classification")
+# Instead of choosing a sequential set, create a random set. (Replace = False.)
 
+splitdata <- function(length,seed=NULL) {
+  if(!is.null(seed)) {
+    set.seed(seed)
+  }
+  index <- 1:length
+  train.index.return <- sample(index, (0.7*length(index)) , replace=FALSE)
+}
 
-# NoRTPPkts
-NoRTPPkts.high.count <- sum(flashcrowd.y.NoRTPPkts.classify == 'high')
-NoRTPPkts.low.count <- sum(flashcrowd.y.NoRTPPkts.classify == 'low')
+# Use any data to get a random training index. SEED = 29
+train.index <- splitdata(nrow(flashcrowd.combined),29)
 
-## barplot
-#barplot(c(NoRTPPkts.high.count, NoRTPPkts.low.count), ylab="Frequency" , ylim=c(0,length(flashcrowd.y.NoRTPPkts.classify)), col=c("darkblue","red"), names.arg =c("high","low"), main="NoRTPPkts Classification")
+# Create the training set.
+flashcrowd.training.combined <- flashcrowd.combined[train.index,]
 
-
-### Combined Bar Plot.
-
-# Construct a matrix from the values.
-classification.matrix <- matrix( c(DispFrames.high.count, DispFrames.low.count, NoAudioPlayed.high.count, NoAudioPlayed.low.count, NoRTPPkts.high.count, NoRTPPkts.low.count), nrow=2, ncol=3)
-
-# Set the rownames and col names for easy identification.
-rownames(classification.matrix) <- c("high","low")
-colnames(classification.matrix) <- c("DispFrames","NoAudioPlayed","NoRTPPkts")
-
-# Bar Plot the Graph.
-barplot(classification.matrix, beside=TRUE, col=c("darkblue","red"), ylab="Frequency" , ylim=c(0,length(flashcrowd.y.NoAudioPlayed.classify)), names.arg =c("DispFrames","NoAudioPlayed","NoRTPPkts"), main="Classification Y Metric")
+# Create the test set.
+flashcrowd.test.combined <- flashcrowd.combined[-train.index,]
 
 
+## STEP 3: Perform the logistic regression upon the variables.
+
+# Use generalized linear model (glm) to calculate the coefficients based on the maximal likelihood function.
+
+flashcrowd.training.combined <- as.data.frame(flashcrowd.training.combined)
+
+# DispFrames.classify
+DispFrames.glm.fit = glm(DispFrames.classify ~ all_..idle + X..memused + X..swpused + 
+                         proc.s +	cswch.s + file.nr + sum_intr.s + 
+                         rtps + ldavg.1 + tcpsck, 
+                      data =flashcrowd.training.combined, 
+                      family=binomial)
+
+#summary(DispFrames.glm.fit)
 
 
-##### ========================  Box Plot.
+# NoAudioPlayed.classify
+NoAudioPlayed.glm.fit = glm(NoAudioPlayed.classify ~ all_..idle + X..memused + X..swpused + 
+                            proc.s +  cswch.s + file.nr + sum_intr.s + 
+                            rtps + ldavg.1 + tcpsck, 
+                         data =flashcrowd.training.combined, 
+                         family=binomial)
 
-# Step1: Concatenate the whole column to the predictor data set.
-flashcrowd.predictor.DispframesClassification.combined <- as.data.frame(c(flashcrowd.x,list("DispFrames.classify"=flashcrowd.y.DispFrames.classify)))
+#summary(NoAudioPlayed.glm.fit)
 
-#library(reshape2)
-#flashcrowd.predictor.DispframesClassification.combined2 <- melt(flashcrowd.predictor.DispframesClassification.combined)
-#remove(flashcrowd.predictor.DispframesClassification.combined2)
 
-# Step2: BoxPlot the data.
+# NoRTPPkts.classify
+NoRTPPkts.glm.fit = glm(NoRTPPkts.classify ~ all_..idle + X..memused + X..swpused + 
+                        proc.s +  cswch.s + file.nr + sum_intr.s + 
+                        rtps + ldavg.1 + tcpsck, 
+                      data =flashcrowd.training.combined, 
+                      family=binomial)
 
-boxplot(
-  formula = all_..idle ~ DispFrames.classify,
-  data = flashcrowd.predictor.DispframesClassification.combined,
-  boxwex  = 0.15,
-  subset = DispFrames.classify == "low",
-  col     = "yellow",
-  at = 1:2 + 0.2
-  )
-
-boxplot(
-  formula = X..memused ~ DispFrames.classify,
-  data = flashcrowd.predictor.DispframesClassification.combined,
-  boxwex  = 0.15,
-  subset = DispFrames.classify == "low",
-  add = TRUE,
-  col ="orange",
-  at = 1:2 -0.2
-)
-
-boxplot(
-  formula = X..swpused ~ DispFrames.classify,
-  data = flashcrowd.predictor.DispframesClassification.combined,
-  boxwex  = 0.15,
-  subset = DispFrames.classify == "low",
-  add = TRUE,
-  col ="navyblue",
-  at = 1:2 -0.2
-)
+#summary(NoRTPPkts.glm.fit)
 
 
 
 
+
+##### ==================================== END ====================================
