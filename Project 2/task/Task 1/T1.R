@@ -92,7 +92,7 @@ colnames(classification.matrix) <- c("DispFrames","NoAudioPlayed","NoRTPPkts")
 
 # Bar Plot the Graph.
 png(file="bar_plot.png",width=500, height=400)
-barplot(classification.matrix, beside=TRUE, col=c("darkblue","red"), ylab="Frequency" , ylim=c(0,length(flashcrowd.y.NoAudioPlayed.classify)), names.arg =c("DispFrames","NoAudioPlayed","NoRTPPkts"), main="Classification Y Metric", density = c(-1,20,-1,20,-1,20))
+barplot(classification.matrix, beside=TRUE, col=c("darkblue","red"), ylab="Frequency" , ylim=c(0,length(flashcrowd.y.NoAudioPlayed.classify)), names.arg =c("Video Frame Rate","Audio Buffer Rate","RTP Packet Rate"), main="Classification Y Metric", density = c(-1,20,-1,20,-1,20))
 legend("topright", 
        legend = c("High", "Low"), 
        fill = c("Blue", "Red"),
@@ -136,7 +136,7 @@ boxplot(
   at = 1:1 + 0.4
 )
 
-axis(1, at=c(1:1, 1:1 - 0.4,1:1 + 0.4),labels=c("Idle CPU", "Memory Used", "Swap Use"), col.axis="black")
+axis(1, at=c(1:1, 1:1 - 0.4,1:1 + 0.4),labels=c("Idle CPU", "Memory Used", "Swap Used"), col.axis="black")
 dev.off()
 
 

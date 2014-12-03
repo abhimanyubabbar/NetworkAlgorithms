@@ -85,7 +85,7 @@ flashcrowd.training.combined <- flashcrowd.combined[train.index,]
 
 # Create the test set.
 flashcrowd.test.combined <- flashcrowd.combined[-train.index,]
-
+flashcrowd.test.y = flashcrowd.y[-train.index,]
 
 ## STEP 3: Perform the logistic regression upon the variables.
 
@@ -152,6 +152,30 @@ confusion.matix.disp.frames = table(DispFrames.actual.vector,DispFrames.predicte
 # Error rate for DispFrames
 error.rate.disp.frames = sum(confusion.matix.disp.frames[c(2, 3)])/sum(confusion.matix.disp.frames)*100 #6.8%
 
+# Time series plot that shows the measurements for samples in the test set for DispFrames
+pch.values.dispframes = ifelse(DispFrames.predicted.vector == DispFrames.actual.vector, 1, 0)
+col.values.dispframes = ifelse(DispFrames.predicted.vector == DispFrames.actual.vector, "blue", "red")
+
+png(file="timeseries_classification_dispframes.png",width=500, height=400)
+plot(DispFrames~c(1:nrow(flashcrowd.test.y)), 
+     data=flashcrowd.test.y, 
+     pch = pch.values.dispframes, col=col.values.dispframes,
+     ylab="Video Frame Rate", xlab="Times",
+     main="Video Frame Rate Classification")
+abline(h=flashcrowd.y.mean.DispFrames, col="green")
+legend("topleft", 
+       legend = c("Correctly Classfied", "Incorrectly Classified"), 
+       pch=c(1, 0),
+       col=c("blue", "red"))
+dev.off()
+
+#Execution time for fitting DispFrames
+exec.time.fit.dispframes = system.time(glm(DispFrames.classify ~ all_..idle + X..memused + X..swpused + 
+                                             proc.s +  cswch.s + file.nr + sum_intr.s + 
+                                             rtps + ldavg.1 + tcpsck, 
+                                           data =flashcrowd.training.combined, 
+                                           family=binomial)) # 0.076 sec
+
 ## Fit for NoAudioPlayed
 NoAudioPlayed.glm.predict <- predict(NoAudioPlayed.glm.fit, 
                                   type="response",
@@ -176,6 +200,30 @@ confusion.matix.no.audio.played = table(NoAudioPlayed.actual.vector,NoAudioPlaye
 
 # Error rate for NoAudioPlayed
 error.rate.no.audio.played = sum(confusion.matix.no.audio.played[c(2, 3)])/sum(confusion.matix.no.audio.played)*100 #18.1%
+
+# Time series plot that shows the measurements for samples in the test set for NoAudioPlayed
+pch.values.no.audio.played = ifelse(NoAudioPlayed.predicted.vector == NoAudioPlayed.actual.vector, 1, 0)
+col.values.no.audio.played = ifelse(NoAudioPlayed.predicted.vector == NoAudioPlayed.actual.vector, "blue", "red")
+
+png(file="timeseries_classification_noaudioplayed.png",width=500, height=400)
+plot(NoAudioPlayed~c(1:nrow(flashcrowd.test.y)), 
+     data=flashcrowd.test.y, 
+     pch = pch.values.no.audio.played, col=col.values.no.audio.played,
+     ylab="Audio Buffer Rate", xlab="Times",
+     main="Audio Buffer Rate Classification")
+abline(h=flashcrowd.y.mean.NoAudioPlayed, col="green")
+legend("topleft", 
+       legend = c("Correctly Classfied", "Incorrectly Classified"), 
+       pch=c(1, 0),
+       col=c("blue", "red"))
+dev.off()
+
+#Execution time for fitting NoAudioPlayed
+exec.time.fit.no.audio.played = system.time(glm(NoAudioPlayed.classify ~ all_..idle + X..memused + X..swpused + 
+                                             proc.s +  cswch.s + file.nr + sum_intr.s + 
+                                             rtps + ldavg.1 + tcpsck, 
+                                           data =flashcrowd.training.combined, 
+                                           family=binomial)) # 0.099 sec
 
 # Fit for NoRTPPkts
 NoRTPPkts.glm.predict <- predict(NoRTPPkts.glm.fit, 
@@ -202,5 +250,28 @@ confusion.matix.no.rttp.pkts = table(NoRTPPkts.actual.vector, NoRTPPkts.predicte
 # Error rate for NoRTPPkts
 error.rate.no.rttp.pkts = sum(confusion.matix.no.rttp.pkts[c(2, 3)])/sum(confusion.matix.no.rttp.pkts)*100 # 19.4%
 
+# Time series plot that shows the measurements for samples in the test set for NoRTPPkts
+pch.values.no.rttp.pkts = ifelse(NoRTPPkts.predicted.vector == NoRTPPkts.actual.vector, 1, 0)
+col.values.no.rttp.pkts = ifelse(NoRTPPkts.predicted.vector == NoRTPPkts.actual.vector, "blue", "red")
+
+png(file="timeseries_classification_nortppacket.png",width=500, height=400)
+plot(NoRTPPkts~c(1:nrow(flashcrowd.test.y)), 
+     data=flashcrowd.test.y, 
+     pch = pch.values.no.rttp.pkts, col=col.values.no.rttp.pkts,
+     ylab="RTP Packet Rate", xlab="Times",
+     main="RTP Packet Rate Classification")
+abline(h=flashcrowd.y.mean.NoRTPPkts, col="green")
+legend("topleft", 
+       legend = c("Correctly Classfied", "Incorrectly Classified"), 
+       pch=c(1, 0),
+       col=c("blue", "red"))
+dev.off()
+
+#Execution time for fitting NoAudioPlayed
+exec.time.fit.no.rttp.pkts = system.time(glm(NoRTPPkts.classify ~ all_..idle + X..memused + X..swpused + 
+                                               proc.s +  cswch.s + file.nr + sum_intr.s + 
+                                               rtps + ldavg.1 + tcpsck, 
+                                             data =flashcrowd.training.combined, 
+                                             family=binomial)) # 0.074 sec
 
 ##### ==================================== END ====================================
