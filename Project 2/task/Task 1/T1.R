@@ -1,15 +1,18 @@
-# Get the current Directory.
-getwd()
+args<-commandArgs(TRUE)
+x.path = "X.csv"
+y.path = "Y.csv"
+
+if (length(args) >= 2) {
+  x.path = args[1]
+  y.path = args[2]
+}
 
 # Load the predictors flash crowd data.
-flashcrowd.x <- read.csv("X.csv")
-
-# Checking components of the list.
-# flashcrowd.x[[1]] == Gives 10,000 values of the first column.
-# length(flashcrowd.x) == Gives the length of the list.
-
+stopifnot(file.exists(x.path)) # check if x data file exists
+flashcrowd.x <- read.csv(x.path)
 # Load the metrics for the flash crowd data.
-flashcrowd.y <- read.csv("Y.csv")
+stopifnot(file.exists(y.path)) # check if y data file exists
+flashcrowd.y <- read.csv(y.path)
 
 # Part 1: Classification of the metrics as "low" or "high" based on the mean of the values.
 
@@ -80,8 +83,6 @@ NoRTPPkts.low.count <- sum(flashcrowd.y.NoRTPPkts.classify == 'low')
 #barplot(c(NoRTPPkts.high.count, NoRTPPkts.low.count), ylab="Frequency" , ylim=c(0,length(flashcrowd.y.NoRTPPkts.classify)), col=c("darkblue","red"), names.arg =c("high","low"), main="NoRTPPkts Classification")
 
 
-### Combined Bar Plot.
-
 # Construct a matrix from the values.
 classification.matrix <- matrix( c(DispFrames.high.count, DispFrames.low.count, NoAudioPlayed.high.count, NoAudioPlayed.low.count, NoRTPPkts.high.count, NoRTPPkts.low.count), nrow=2, ncol=3)
 
@@ -90,51 +91,52 @@ rownames(classification.matrix) <- c("high","low")
 colnames(classification.matrix) <- c("DispFrames","NoAudioPlayed","NoRTPPkts")
 
 # Bar Plot the Graph.
-barplot(classification.matrix, beside=TRUE, col=c("darkblue","red"), ylab="Frequency" , ylim=c(0,length(flashcrowd.y.NoAudioPlayed.classify)), names.arg =c("DispFrames","NoAudioPlayed","NoRTPPkts"), main="Classification Y Metric")
-
-
-
+png(file="bar_plot.png",width=500, height=400)
+barplot(classification.matrix, beside=TRUE, col=c("darkblue","red"), ylab="Frequency" , ylim=c(0,length(flashcrowd.y.NoAudioPlayed.classify)), names.arg =c("Video Frame Rate","Audio Buffer Rate","RTP Packet Rate"), main="Classification Y Metric", density = c(-1,20,-1,20,-1,20))
+legend("topright", 
+       legend = c("High", "Low"), 
+       fill = c("Blue", "Red"),
+       density = c(-1, 20))
+dev.off()
 
 ##### ========================  Box Plot.
 
 # Step1: Concatenate the whole column to the predictor data set.
 flashcrowd.predictor.DispframesClassification.combined <- as.data.frame(c(flashcrowd.x,list("DispFrames.classify"=flashcrowd.y.DispFrames.classify)))
 
-#library(reshape2)
-#flashcrowd.predictor.DispframesClassification.combined2 <- melt(flashcrowd.predictor.DispframesClassification.combined)
-#remove(flashcrowd.predictor.DispframesClassification.combined2)
+flashcrowd.predictor.DispframesClassification.combined.low <- flashcrowd.predictor.DispframesClassification.combined[ which( ! flashcrowd.predictor.DispframesClassification.combined$DispFrames.classify %in% "high") , ]
+flashcrowd.predictor.DispframesClassification.combined.low$DispFrames.classify = factor(flashcrowd.predictor.DispframesClassification.combined.low$DispFrames.classify)
 
-# Step2: BoxPlot the data.
-
+# Step2: BoxPlot the data
+png(file="box_plot.png",width=500, height=400)
 boxplot(
   formula = all_..idle ~ DispFrames.classify,
-  data = flashcrowd.predictor.DispframesClassification.combined,
+  data = flashcrowd.predictor.DispframesClassification.combined.low,
   boxwex  = 0.15,
-  subset = DispFrames.classify == "low",
   col     = "yellow",
-  at = 1:2 + 0.2
-  )
+  at = 1:1,
+  main="X metrics for Low Video Frame Rate"
+)
 
 boxplot(
   formula = X..memused ~ DispFrames.classify,
-  data = flashcrowd.predictor.DispframesClassification.combined,
+  data = flashcrowd.predictor.DispframesClassification.combined.low,
   boxwex  = 0.15,
-  subset = DispFrames.classify == "low",
   add = TRUE,
   col ="orange",
-  at = 1:2 -0.2
+  at = 1:1 - 0.4
 )
 
 boxplot(
   formula = X..swpused ~ DispFrames.classify,
-  data = flashcrowd.predictor.DispframesClassification.combined,
+  data = flashcrowd.predictor.DispframesClassification.combined.low,
   boxwex  = 0.15,
-  subset = DispFrames.classify == "low",
   add = TRUE,
   col ="navyblue",
-  at = 1:2 -0.2
+  at = 1:1 + 0.4
 )
 
-
+axis(1, at=c(1:1, 1:1 - 0.4,1:1 + 0.4),labels=c("Idle CPU", "Memory Used", "Swap Used"), col.axis="black")
+dev.off()
 
 
