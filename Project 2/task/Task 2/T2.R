@@ -174,7 +174,7 @@ exec.time.fit.dispframes = system.time(glm(DispFrames.classify ~ all_..idle + X.
                                              proc.s +  cswch.s + file.nr + sum_intr.s + 
                                              rtps + ldavg.1 + tcpsck, 
                                            data =flashcrowd.training.combined, 
-                                           family=binomial)) # 0.076 sec
+                                           family=binomial)) # 0.070 sec
 
 ## Fit for NoAudioPlayed
 NoAudioPlayed.glm.predict <- predict(NoAudioPlayed.glm.fit, 
