@@ -1,4 +1,8 @@
 *\Test.R
 .Rhistory
 *.png
+.DS_Store
+.Rproj.user
+*.RData
+*.RProj
 .RData
