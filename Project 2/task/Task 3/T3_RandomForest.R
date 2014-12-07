@@ -64,6 +64,8 @@ flashcrowd.y.classification.list <- list("DispFrames.classify"=flashcrowd.y.Disp
 
 ## ============================================================
 
+flashcrowd.combined <- cbind(flashcrowd.x,flashcrowd.y.classification.list)
+
 ## STEP 2: Divide the set into the training set and the test set.
 
 # Instead of choosing a sequential set, create a random set. (Replace = False.)
@@ -81,21 +83,109 @@ train.index <- splitdata(nrow(flashcrowd.combined),29)
 
 # Create the training set.
 flashcrowd.training.combined <- flashcrowd.combined[train.index,]
-
+  
 # Create the test set.
 flashcrowd.test.combined <- flashcrowd.combined[-train.index,]
 flashcrowd.test.y = flashcrowd.y[-train.index,]
 
+# typeof(flashcrowd.combined)
+# flashcrowd.test.combined <- subset(flashcrowd.test.combined, select = -c(NoAudioPlayed.classify,NoRTPPkts.classify))
+# subset(df, select = c(a,c))
 
 # We now have the training and test datasets with us.
 
 # RANDOM FOREST APPROACH.
 
+# Install Package if not present.
+# install.packages("randomForest")
+
+library(randomForest)
+set.seed(1)
+
+# Set the class of the y metrics as factors.
+flashcrowd.training.combined$DispFrames.classify <- factor(flashcrowd.training.combined$DispFrames.classify)
+flashcrowd.training.combined$NoAudioPlayed.classify <- factor(flashcrowd.training.combined$NoAudioPlayed.classify)
+flashcrowd.training.combined$NoRTPPkts.classify <- factor(flashcrowd.training.combined$NoRTPPkts.classify  )
+
+# Check to test the class of the variable.
+# class(flashcrowd.training.combined$DispFrames.classify)
+
+# Start the fitting of data.
+# DispFrames.
+DispFrames.rf <- randomForest(
+    as.factor(DispFrames.classify) ~ .,
+    data = subset(flashcrowd.training.combined, select = -c(NoAudioPlayed.classify,NoRTPPkts.classify)),
+    mtry = 3,     # The mtry component in case of classification is best for root(predictor_size)
+    importance = TRUE
+)
 
 
+# Now predict the values.
+DispFrames.prediction = predict(DispFrames.rf,
+                                newdata = flashcrowd.test.combined)
 
 
+# Confusion Matrix + Error Rate.
+confusion.matix.disp.frames <- table(flashcrowd.test.combined$DispFrames.classify,DispFrames.prediction)
+error.rate.disp.frames = sum(confusion.matix.disp.frames[c(2, 3)])/sum(confusion.matix.disp.frames)*100 
 
+# Comparison
+# Original <- 6.8 %
+# Random Forest <- 5.33 %
+
+
+# ======================== 
+
+# NoAudioPlayed
+NoAudioPlayed.rf <- randomForest(
+  as.factor(NoAudioPlayed.classify) ~ .,
+  data = subset(flashcrowd.training.combined, select = -c(DispFrames.classify,NoRTPPkts.classify)),
+  mtry = 3,     # The mtry component in case of classification is best for root(predictor_size)
+  importance = TRUE
+)
+
+
+# Now predict the values.
+NoAudioPlayed.prediction = predict(NoAudioPlayed.rf,
+                                newdata = flashcrowd.test.combined)
+
+# Confusion Matrix + Error Rate.
+confusion.matix.no.audio.played <- table(flashcrowd.test.combined$NoAudioPlayed.classify,NoAudioPlayed.prediction)
+error.rate.no.audio.played = sum(confusion.matix.no.audio.played[c(2, 3)])/sum(confusion.matix.no.audio.played)*100 #18.1%
+
+
+# Comparison
+# Original <- 18.1 %
+# Random Forest <- 1.06 %
+
+
+# =============================
+
+# NoRTPPkts
+
+NoRTPPkts.rf <- randomForest(
+  as.factor(NoRTPPkts.classify) ~ .,
+  data = subset(flashcrowd.training.combined, select = -c(DispFrames.classify,NoAudioPlayed.classify)),
+  mtry = 3,     # The mtry component in case of classification is best for root(predictor_size)
+  importance = TRUE
+)
+
+
+# Now predict the values.
+NoRTPPkts.prediction = predict(NoRTPPkts.rf,
+                                   newdata = flashcrowd.test.combined)
+
+# Confusion Matrix + Error Rate.
+confusion.matix.no.rttp.pkts <- table(flashcrowd.test.combined$NoRTPPkts.classify,NoRTPPkts.prediction)
+error.rate.no.rttp.pkts = sum(confusion.matix.no.rttp.pkts[c(2, 3)])/sum(confusion.matix.no.rttp.pkts)*100 
+
+
+# Comparison
+# Original <- 19.4 %
+# Random Forest <- 7.73 %
+
+
+# =================================================
 
 
 
