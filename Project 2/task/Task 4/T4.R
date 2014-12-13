@@ -147,7 +147,7 @@ error.rate.disp.frames = sum(confusion.matix.disp.frames[c(2, 3)])/sum(confusion
 # Comparison.
 
 # Earlier <- 6.81%
-# Now <- 6.83%
+# Now <- 6.83
 
 # Time series plot that shows the measurements for samples in the test set for DispFrames
 pch.values.dispframes = ifelse(DispFrames.predicted.vector == DispFrames.actual.vector, 1, 0)
